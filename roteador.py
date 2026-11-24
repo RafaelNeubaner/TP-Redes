@@ -81,6 +81,8 @@ class Roteador:
         self.rotas_para_remover = set()
         self.timer_roteamento = None
         self.roteamento_ativo = False
+        self.geracao_temporizador = 0
+        self.temporizador_em_execucao = False
         self.encerrado = False
 
     # =========================================================================
@@ -482,8 +484,15 @@ class Roteador:
         with self.state_lock:
             if self.timer_roteamento is not None:
                 self.timer_roteamento.cancel()
+            self.geracao_temporizador += 1
+            geracao = self.geracao_temporizador
             self.roteamento_ativo = True
-            self.timer_roteamento = threading.Timer(atraso_inicial, self._ciclo_temporizador)
+            self.temporizador_em_execucao = True
+            self.timer_roteamento = threading.Timer(
+                atraso_inicial,
+                self._ciclo_temporizador,
+                args=(geracao,),
+            )
             self.timer_roteamento.daemon = True
             self.timer_roteamento.start()
 
@@ -563,24 +572,37 @@ class Roteador:
             if vizinho_origem not in self.vizinhos or self.meu_nome is None:
                 return
 
-            # Garante rota direta de custo 1 para o vizinho ativo caso não exista ou seja maior
-            if (
-                vizinho_origem not in self.tabela
-                or self.tabela[vizinho_origem]["cost"] > 1
-            ):
-                self.tabela[vizinho_origem] = {"cost": 1, "next_hop": vizinho_origem}
-                self.rotas_para_remover.discard(vizinho_origem)
+            # O enlace diretamente configurado com um vizinho ativo é sempre custo 1.
+            self.tabela[vizinho_origem] = {
+                "cost": 1,
+                "next_hop": vizinho_origem,
+            }
+            self.rotas_para_remover.discard(vizinho_origem)
 
             for destino, custo_anunciado in rotas_recebidas.items():
-                if not isinstance(destino, str) or not isinstance(custo_anunciado, int):
+                if (
+                    not isinstance(destino, str)
+                    or isinstance(custo_anunciado, bool)
+                    or not isinstance(custo_anunciado, int)
+                    or custo_anunciado < 0
+                    or custo_anunciado > INFINITO
+                ):
                     continue
                 if destino == self.meu_nome:
+                    continue
+
+                # Uma rota direta ativa nunca pode ser substituída por uma rota remota.
+                if destino in self.vizinhos:
+                    self.tabela[destino] = {
+                        "cost": 1,
+                        "next_hop": destino,
+                    }
+                    self.rotas_para_remover.discard(destino)
                     continue
 
                 novo_custo = min(INFINITO, custo_anunciado + 1)
 
                 if destino not in self.tabela:
-                    # Só adiciona rotas válidas (menores que infinito)
                     if novo_custo < INFINITO:
                         self.tabela[destino] = {
                             "cost": novo_custo,
@@ -592,23 +614,14 @@ class Roteador:
                     prox_atual = rota_atual["next_hop"]
 
                     if novo_custo < custo_atual:
-                        # Caminho estritamente melhor encontrado
                         self.tabela[destino] = {
                             "cost": novo_custo,
                             "next_hop": vizinho_origem,
                         }
                         self.rotas_para_remover.discard(destino)
                     elif prox_atual == vizinho_origem:
-                        # A rota atual passa por este vizinho: atualiza mesmo se o custo aumentou
                         if novo_custo >= INFINITO:
-                            # Se o destino ainda é um vizinho direto ativo, podemos usar o enlace direto (custo 1)
-                            if destino in self.vizinhos:
-                                self.tabela[destino] = {
-                                    "cost": 1,
-                                    "next_hop": destino,
-                                }
-                                self.rotas_para_remover.discard(destino)
-                            elif custo_atual < INFINITO:
+                            if custo_atual < INFINITO:
                                 rota_atual["cost"] = INFINITO
                                 self.rotas_para_remover.add(destino)
                         else:
@@ -625,13 +638,15 @@ class Roteador:
         for destino, info in self.tabela.items():
             custo = info["cost"]
             prox = info["next_hop"]
-            if destino != self.meu_nome and prox == nome_vizinho and destino != nome_vizinho:
+            if destino == self.meu_nome:
+                rotas_anuncio[destino] = 0
+            elif prox == nome_vizinho and destino != nome_vizinho:
                 rotas_anuncio[destino] = INFINITO
             else:
                 rotas_anuncio[destino] = min(INFINITO, custo)
         return rotas_anuncio
 
-    def _ciclo_temporizador(self):
+    def _ciclo_temporizador(self, geracao: int = None):
         """
         Callback executado periodicamente a cada 1 segundo (após o disparo inicial de I <tempo>).
         Envia o vetor de distâncias a todos os vizinhos ativos e remove rotas envenenadas (custo 16)
@@ -644,19 +659,26 @@ class Roteador:
         with self.state_lock:
             if not self.roteamento_ativo or self.meu_nome is None:
                 return
+            if geracao is not None and geracao != self.geracao_temporizador:
+                return
 
             meu_nome = self.meu_nome
             for nome_viz, addr_viz in self.vizinhos.items():
                 vetor = self._construir_vetor_para_vizinho(nome_viz)
                 envios.append((addr_viz, vetor))
 
-            # Após preparar o anúncio com as rotas envenenadas (custo 16),
-            # remove-as da tabela de roteamento conforme especificado.
-            if self.rotas_para_remover:
-                for dst in list(self.rotas_para_remover):
-                    if dst in self.tabela and self.tabela[dst]["cost"] >= INFINITO:
-                        del self.tabela[dst]
-                self.rotas_para_remover.clear()
+            # O próximo ciclo é agendado a partir deste disparo, independentemente
+            # da duração dos envios Stop-and-Wait.
+            if geracao is not None:
+                if self.timer_roteamento is not None:
+                    self.timer_roteamento.cancel()
+                self.timer_roteamento = threading.Timer(
+                    1.0,
+                    self._ciclo_temporizador,
+                    args=(geracao,),
+                )
+                self.timer_roteamento.daemon = True
+                self.timer_roteamento.start()
 
         for addr_viz, vetor in envios:
             if self.encerrado:
@@ -668,12 +690,15 @@ class Roteador:
             }
             self.enviar_com_ack(pacote, addr_viz)
 
-        # Reagenda o timer para disparar novamente após 1.0 segundo
+        # Remove somente depois de os vetores terem sido preparados e enviados.
         with self.state_lock:
-            if not self.encerrado and self.roteamento_ativo:
-                self.timer_roteamento = threading.Timer(1.0, self._ciclo_temporizador)
-                self.timer_roteamento.daemon = True
-                self.timer_roteamento.start()
+            if geracao is not None and geracao != self.geracao_temporizador:
+                return
+            if self.rotas_para_remover:
+                for dst in list(self.rotas_para_remover):
+                    if dst in self.tabela and self.tabela[dst]["cost"] >= INFINITO:
+                        del self.tabela[dst]
+                self.rotas_para_remover.clear()
 
 
 def main():
