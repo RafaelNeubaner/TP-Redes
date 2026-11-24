@@ -426,6 +426,15 @@ class Roteador:
         Define o nome do roteador e inicializa a tabela de rotas com custo 0 para si mesmo.
         """
         with self.state_lock:
+            nome_antigo = self.meu_nome
+            if nome_antigo is not None and nome_antigo != nome:
+                rota_antiga = self.tabela.get(nome_antigo)
+                if (
+                    rota_antiga is not None
+                    and rota_antiga["cost"] == 0
+                    and rota_antiga["next_hop"] == nome_antigo
+                ):
+                    del self.tabela[nome_antigo]
             self.meu_nome = nome
             self.tabela[nome] = {"cost": 0, "next_hop": nome}
 
