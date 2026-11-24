@@ -60,7 +60,7 @@ class Roteador:
         self.seq_lock = threading.Lock()
         self.seq_envio = 0
 
-        # Controle de duplicatas recebidas no Stop-and-Wait: mapeia origem -> último seq processado
+        # Controle de duplicatas recebidas no Stop-and-Wait: mapeia origem -> sequências processadas
         self.ultimo_seq_recebido = {}
         # Fila de pacotes recebidos enquanto se aguardava por um ACK no Stop-and-Wait
         self.fila_pendentes = []
@@ -156,7 +156,20 @@ class Roteador:
 
                             tipo = obj.get("type")
                             if tipo == "ack":
-                                if obj.get("seq") == seq:
+                                with self.state_lock:
+                                    nome_destino = next(
+                                        (
+                                            nome
+                                            for nome, endereco in self.vizinhos.items()
+                                            if endereco == addr
+                                        ),
+                                        None,
+                                    )
+                                if (
+                                    addr_rec == addr
+                                    and obj.get("seq") == seq
+                                    and obj.get("src") == nome_destino
+                                ):
                                     ack_recebido = True
                                     break
                                 # ACK antigo/duplicado de outra mensagem: ignora e continua esperando
@@ -191,8 +204,11 @@ class Roteador:
 
     def _processar_fila_pendentes(self):
         """Despacha pacotes que foram armazenados durante a espera por um ACK."""
-        while self.fila_pendentes:
-            dados, addr = self.fila_pendentes.pop(0)
+        with self.udp_lock:
+            pendentes = list(self.fila_pendentes)
+            self.fila_pendentes.clear()
+        while pendentes:
+            dados, addr = pendentes.pop(0)
             self._tratar_datagrama_udp(dados, addr, ack_ja_enviado=True)
 
     def _tratar_datagrama_udp(self, dados: bytes, addr: tuple, ack_ja_enviado: bool = False):
@@ -224,9 +240,11 @@ class Roteador:
 
             # Descarte de duplicatas de retransmissão no Stop-and-Wait (por endereço do remetente)
             if seq is not None:
-                if self.ultimo_seq_recebido.get(addr) == seq:
-                    return
-                self.ultimo_seq_recebido[addr] = seq
+                with self.udp_lock:
+                    sequencias_recebidas = self.ultimo_seq_recebido.setdefault(addr, set())
+                    if seq in sequencias_recebidas:
+                        return
+                    sequencias_recebidas.add(seq)
 
             if tipo == "update":
                 with self.state_lock:
