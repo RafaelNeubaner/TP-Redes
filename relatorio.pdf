@@ -1,0 +1,234 @@
+%PDF-1.4
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [ 6 0 R 8 0 R 10 0 R 12 0 R ] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 4983 >>
+stream
+0.25 0.32 0.42 rg
+BT /F2 8 Tf 58 811 Td (JSON_RIP | Redes de Computadores - UFMG) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 801 m 537 801 l S
+BT /F2 23 Tf 0 0 0 rg 58.0 770.0 Td (RELATÓRIO TÉCNICO) Tj ET
+BT /F2 15 Tf 0 0 0 rg 58.0 738.0 Td (Trabalho Prático JSON_RIP) Tj ET
+BT /F1 9 Tf 0 0 0 rg 58.0 713.0 Td (Disciplina: Redes de Computadores | Universidade Federal de Minas Gerais) Tj ET
+BT /F1 9 Tf 0 0 0 rg 58.0 698.0 Td (Data: 24 de novembro de 2026) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 669.0 Td (1. Introdução) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 649.0 Td (Este trabalho implementa o JSON_RIP, um protocolo de roteamento baseado no algoritmo de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 636.0 Td (Vetor de Distâncias. Cada processo executa como um roteador independente, mantém rotas para) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 623.0 Td (os destinos conhecidos e encaminha mensagens de texto entre roteadores.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 605.0 Td (Os processos formam uma rede sobreposta \(overlay\): cada roteador conhece diretamente apenas) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 592.0 Td (seus vizinhos por endereço IP e porta UDP. Os anúncios trocam nomes de destinos e custos; o) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 579.0 Td (encaminhamento de dados segue os próximos saltos calculados localmente.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 561.0 Td (O transporte entre roteadores é UDP. A interface de controle aceita comandos por UDP e, na) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 548.0 Td (versão avançada implementada, por TCP na mesma porta numérica, separando o canal de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 535.0 Td (controle do canal de roteamento.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 513.0 Td (2. Arquitetura) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 493.0 Td (O programa roteador.py recebe como argumento a porta UDP, cria um socket UDP e um socket) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 480.0 Td (TCP de escuta vinculados a essa porta, e executa um loop central com select.select\(\). O TCP) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 467.0 Td (aceita uma conexão de controle por vez; o socket UDP recebe anúncios, dados e também) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 454.0 Td (comandos de controle.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 434.0 Td (Módulos e estado) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 418.0 Td (- Controle: o parser reconhece N, V, R, I, T e E, valida a sintaxe, ecoa comandos válidos) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 405.0 Td (  e encaminha a ação para o método correspondente.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 390.0 Td (- Roteamento: a tabela de rotas, a lista de vizinhos, o algoritmo de Vetor de Distâncias,) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 377.0 Td (  os anúncios periódicos e o encaminhamento de mensagens são mantidos pela classe Roteador.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 362.0 Td (- Confiabilidade UDP: enviar_com_ack\(\) atribui sequência, transmite UPDATE/DATA e aguarda) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 349.0 Td (  ACK; a recepção confirma mensagens válidas e elimina duplicatas.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 334.0 Td (- Estruturas: vizinhos mapeia nome para \(IP, porta\); tabela mapeia destino para cost e) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 321.0 Td (  next_hop; rotas_para_remover guarda rotas envenenadas para remoção após anúncio.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 306.0 Td (A tabela e os vizinhos são protegidos por state_lock. udp_lock serializa o acesso de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 293.0 Td (leitura ao socket UDP e protege a fila pendente e o histórico de sequências recebidas.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 280.0 Td (seq_lock protege o contador de sequências de envio.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 258.0 Td (3. Formatos das mensagens JSON) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 238.0 Td (As mensagens de roteamento são objetos JSON enviados como datagramas UDP. seq é inserido) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 225.0 Td (pelo método de envio; retransmissões reutilizam o mesmo valor. A sequência de envio é) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 212.0 Td (crescente e começa em zero por processo.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 192.0 Td (UPDATE - anúncio do vetor) Tj ET
+BT /F3 8.5 Tf 0 0 0 rg 66.0 176.0 Td ({"type":"update","src":"R1","routes":{"R1":0,"R2":1},"seq":0}) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 158.0 Td (- type identifica UPDATE; src identifica o roteador anunciante; routes associa cada) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 145.0 Td (  destino a um custo; seq identifica a transmissão para ACK e deduplicação.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 128.0 Td (DATA - mensagem de usuário encaminhada) Tj ET
+BT /F3 8.5 Tf 0 0 0 rg 66.0 112.0 Td ({"type":"data","src":"R1","dst":"R3","msg":"Oi!","seq":1}) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 94.0 Td (- type identifica DATA; src preserva o roteador que recebeu o comando E original; dst é o) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 81.0 Td (  destino final; msg é o texto; seq identifica a transmissão UDP atual.) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 48 m 537 48 l S
+BT /F1 8 Tf 0.35 0.38 0.42 rg 490 32 Td (1 / 4) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 5545 >>
+stream
+0.25 0.32 0.42 rg
+BT /F2 8 Tf 58 811 Td (JSON_RIP | Redes de Computadores - UFMG) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 801 m 537 801 l S
+BT /F2 11 Tf 0 0 0 rg 58.0 768.0 Td (ACK - confirmação) Tj ET
+BT /F3 8.5 Tf 0 0 0 rg 66.0 752.0 Td ({"type":"ack","src":"R2","seq":1}) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 734.0 Td (- type identifica ACK; src identifica quem confirmou; seq corresponde à mensagem) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 721.0 Td (  recebida. O remetente aceita o ACK somente quando endereço UDP, origem vizinha e) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 708.0 Td (  sequência correspondem ao envio pendente.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 693.0 Td (Endereços e portas não fazem parte do vetor anunciado. Para UPDATE, o nome src deve) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 680.0 Td (corresponder ao vizinho configurado no endereço remetente. DATA pode preservar um src) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 667.0 Td (remoto, por isso a validação de origem imediata usa o endereço UDP de qualquer vizinho) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 654.0 Td (ativo.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 632.0 Td (4. Algoritmo de roteamento) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 612.0 Td (Cada anúncio fornece o custo do vizinho até cada destino. O roteador calcula o custo) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 599.0 Td (candidato como custo anunciado + 1 e limita o valor a 16. Custos recebidos fora do) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 586.0 Td (intervalo de 0 a 16, booleanos e destinos inválidos são ignorados.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 568.0 Td (Um destino desconhecido é adicionado somente se o custo candidato for menor que 16. Uma) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 555.0 Td (rota é substituída quando o candidato é melhor; quando o anúncio vem do next_hop atual, o) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 542.0 Td (custo da rota também é atualizado se aumentar. A rota própria permanece com custo zero e as) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 529.0 Td (rotas diretas de vizinhos ativos permanecem com custo um.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 509.0 Td (Split Horizon e Poisoned Reverse) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 493.0 Td (Ao construir um vetor específico para cada vizinho, uma rota cujo next_hop seja esse) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 480.0 Td (vizinho \(exceto o próprio destino vizinho\) é anunciada com custo 16. Isso é Split Horizon) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 467.0 Td (com Poisoned Reverse: evita que o vizinho considere um caminho que retornaria por ele) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 454.0 Td (mesmo. A rota própria é sempre anunciada com custo zero; a rota direta ao vizinho receptor) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 441.0 Td (não é envenenada.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 421.0 Td (Falha de vizinho) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 405.0 Td (O comando R remove o vizinho ativo e marca com custo 16 as rotas que usavam esse vizinho) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 392.0 Td (como próximo salto. Essas rotas são incluídas no próximo ciclo de anúncios aos vizinhos) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 379.0 Td (restantes e removidas da tabela após as tentativas de envio do ciclo. Não há envio imediato) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 366.0 Td (provocado pela mudança, nem mecanismo de expiração periódica de rotas.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 344.0 Td (5. Comunicação e confiabilidade) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 324.0 Td (Anúncios UPDATE e dados DATA são enviados por UDP com Stop-and-Wait. O emissor acrescenta) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 311.0 Td (seq, envia o datagrama e aguarda até 0,1 segundo por um ACK correspondente. São feitas no) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 298.0 Td (máximo três tentativas \(envio inicial e duas retransmissões\), mantendo o mesmo seq. Depois) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 285.0 Td (das três tentativas sem confirmação, o programa imprime FALTOU UM ACK.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 267.0 Td (O receptor envia ACK para UPDATE e DATA de vizinhos válidos. Ao aguardar ACK, o emissor) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 254.0 Td (também pode receber outro UPDATE/DATA: confirma-o e o coloca na fila para processamento) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 241.0 Td (posterior. O histórico de sequências recebidas é mantido por endereço UDP; cópias repetidas) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 228.0 Td (recebem ACK novamente, mas não são processadas outra vez.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 210.0 Td (O Stop-and-Wait aplica-se às mensagens entre roteadores, não aos comandos de controle. O) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 197.0 Td (contador de envio é incrementado com seq_lock; udp_lock impede que o loop de select consuma) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 184.0 Td (por engano o ACK esperado pelo envio.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 162.0 Td (6. Concorrência e temporização) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 142.0 Td (O comando I agenda a primeira execução do callback depois do intervalo especificado em) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 129.0 Td (milissegundos. O callback constrói um vetor individual para cada vizinho ativo e envia) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 116.0 Td (UPDATE por enviar_com_ack\(\). Um novo Timer é agendado para um segundo após o início de cada) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 103.0 Td (callback. Como cada envio espera ACK e os vizinhos são processados sequencialmente, o) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 90.0 Td (instante de conclusão dos envios pode variar com o tempo de resposta.) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 48 m 537 48 l S
+BT /F1 8 Tf 0.35 0.38 0.42 rg 490 32 Td (2 / 4) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 11 0 R >>
+endobj
+11 0 obj
+<< /Length 5182 >>
+stream
+0.25 0.32 0.42 rg
+BT /F2 8 Tf 58 811 Td (JSON_RIP | Redes de Computadores - UFMG) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 801 m 537 801 l S
+BT /F1 9.5 Tf 0 0 0 rg 58.0 770.0 Td (state_lock protege o estado de roteamento compartilhado entre comandos, processamento de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 757.0 Td (mensagens e callback. udp_lock coordena recvfrom\(\), espera por ACK, envio de confirmações e) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 744.0 Td (a fila de datagramas pendentes. seq_lock protege a atribuição do número de sequência de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 731.0 Td (saída. A geração do Timer invalida callbacks de configurações I anteriores.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 709.0 Td (7. Multiplexação) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 689.0 Td (select.select\(\) monitora o socket UDP e, alternadamente, o socket TCP de escuta ou a) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 676.0 Td (conexão TCP ativa. UDP e TCP podem usar o mesmo número de porta porque são transportes) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 663.0 Td (distintos. Enquanto há uma conexão TCP, uma segunda conexão de controle não é aceita até a) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 650.0 Td (atual terminar.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 632.0 Td (Como TCP é um fluxo de bytes, dados recebidos são acumulados em tcp_buffer e separados por) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 619.0 Td (newline. Ao receber EOF, qualquer comando residual é processado antes de fechar a conexão;) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 606.0 Td (em seguida, o servidor volta a monitorar o socket TCP de escuta. O canal UDP permanece) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 593.0 Td (monitorado durante o atendimento TCP.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 571.0 Td (8. Testes) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 551.0 Td (A suíte tests/run_integration.py foi executada em 24/11/2026 em macOS Darwin 27.2,) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 538.0 Td (arquitetura arm64, Python 3.9.6 e netcat BSD. Os cenários iniciaram processos reais de) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 525.0 Td (roteador em portas locais; para Stop-and-Wait foi usado um peer UDP de teste. A suíte final) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 512.0 Td (passou em todos os nove grupos abaixo.) Tj ET
+BT /F2 11 Tf 0 0 0 rg 58.0 492.0 Td (Resultados observados) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 476.0 Td (- Inicialização: quatro roteadores da topologia e um processo auxiliar apresentaram rota) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 463.0 Td (  própria com custo zero. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 448.0 Td (- Vizinhos: enlaces configurados por V apresentaram custo direto um. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 433.0 Td (- Topologia linear: R1 alcançou R3 com custo 2 via R2; R3 alcançou R1 com custo 2 via R2.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 420.0 Td (  Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 405.0 Td (- Encaminhamento: mensagem com espaços repetidos e espaços finais foi preservada; R2) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 392.0 Td (  imprimiu um EE e R3 um DD; R1 ecoou o comando E. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 377.0 Td (- Topologia em anel: rotas de custo 2 e próximos saltos coerentes foram observados.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 364.0 Td (  Poisoned Reverse e remoção pós-anúncio foram verificados por chamada direta aos métodos) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 351.0 Td (  reais, com envio substituído por mock. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 336.0 Td (- Falha de enlace: após R R2, a rota dependente foi invalidada; no anel, R1 convergiu) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 323.0 Td (  para R3 via R4 com custo 2. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 308.0 Td (- Stop-and-Wait: ACK após retransmissão, mesmo seq nas tentativas, três transmissões sem) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 295.0 Td (  ACK, aviso FALTOU UM ACK e descarte de duplicata foram verificados. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 280.0 Td (- Validação de remetentes: DATA de endpoint não cadastrado e UPDATE cujo src conhecido) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 267.0 Td (  veio de endereço divergente não receberam ACK nem foram processados. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 252.0 Td (- TCP: múltiplas linhas, comando residual sem newline, reconexão, UDP durante conexão TCP) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 239.0 Td (  e saída esperada foram verificados. Aprovado.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 224.0 Td (- Formato de saída: os logs dos cenários não apresentaram mensagens de depuração extras.) Tj ET
+BT /F1 9.3 Tf 0 0 0 rg 64.0 211.0 Td (  Aprovado.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 196.0 Td (Limite experimental: os testes foram executados em macOS, não nas máquinas Linux do) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 183.0 Td (laboratório. Portanto, a compatibilidade Linux não é apresentada como experimentalmente) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 170.0 Td (comprovada. A implementação usa módulos da biblioteca padrão do Python e a suíte documenta) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 157.0 Td (o comando de execução Linux com nc.) Tj ET
+BT /F2 14 Tf 0 0 0 rg 58.0 135.0 Td (9. Conclusão) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 48 m 537 48 l S
+BT /F1 8 Tf 0.35 0.38 0.42 rg 490 32 Td (3 / 4) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 13 0 R >>
+endobj
+13 0 obj
+<< /Length 1616 >>
+stream
+0.25 0.32 0.42 rg
+BT /F2 8 Tf 58 811 Td (JSON_RIP | Redes de Computadores - UFMG) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 801 m 537 801 l S
+BT /F1 9.5 Tf 0 0 0 rg 58.0 770.0 Td (O programa implementa uma rede JSON_RIP com troca periódica de vetores sobre UDP, cálculo) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 757.0 Td (de rotas por distância, encaminhamento de dados, confirmação Stop-and-Wait e controle TCP) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 744.0 Td (multiplexado com UDP por select\(\). Os testes locais cobriram convergência, encaminhamento,) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 731.0 Td (falha de enlace, ACKs e processamento TCP.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 713.0 Td (As principais decisões foram manter uma tabela local por roteador, anunciar somente nomes e) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 700.0 Td (custos, preservar a origem original de DATA e usar locks para proteger estado) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 687.0 Td (compartilhado. A validação também evidenciou a importância de verificar identidade e) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 674.0 Td (endereço do remetente antes de confirmar ou processar mensagens. A execução no Linux do) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 661.0 Td (laboratório continua sendo uma validação pendente e deve ser tratada como tal na entrega.) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 643.0 Td (Fontes de descrição: enunciado original fornecido pelo estudante, README.md, roteador.py e) Tj ET
+BT /F1 9.5 Tf 0 0 0 rg 58.0 630.0 Td (resultados observados de tests/run_integration.py.) Tj ET
+0.72 0.76 0.80 RG 0.6 w 58 48 m 537 48 l S
+BT /F1 8 Tf 0.35 0.38 0.42 rg 490 32 Td (4 / 4) Tj ET
+endstream
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000143 00000 n 
+0000000240 00000 n 
+0000000342 00000 n 
+0000000437 00000 n 
+0000000583 00000 n 
+0000005617 00000 n 
+0000005763 00000 n 
+0000011359 00000 n 
+0000011507 00000 n 
+0000016741 00000 n 
+0000016889 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+18557
+%%EOF
