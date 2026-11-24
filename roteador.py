@@ -32,7 +32,7 @@ class Roteador:
         self.porta = porta
 
         # =====================================================================
-        # ESTRUTURAS DO DEV 1: Rede, Multiplexação, Controle e Stop-and-Wait
+        # ESTRUTURAS DE COMUNICAÇÃO: Rede, Multiplexação, Controle e Stop-and-Wait
         # =====================================================================
         self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udp_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -66,7 +66,7 @@ class Roteador:
         self.fila_pendentes = []
 
         # =====================================================================
-        # ESTRUTURAS DO DEV 2: Tabela de Roteamento, Vizinhos e Temporização
+        # ESTRUTURAS DE ROTEAMENTO: Tabela, Vizinhos e Temporização
         # =====================================================================
         self. state_lock = threading.Lock()
         self.meu_nome = None
@@ -86,7 +86,7 @@ class Roteador:
         self.encerrado = False
 
     # =========================================================================
-    # MÓDULO DEV 1: Stop-and-Wait (UDP), Recepção, Parser de Comandos e select()
+    # COMUNICAÇÃO UDP, RECEPÇÃO, PARSER DE COMANDOS E MULTIPLEXAÇÃO
     # =========================================================================
 
     def _proximo_seq(self) -> int:
@@ -458,7 +458,7 @@ class Roteador:
             pass
 
     # =========================================================================
-    # MÓDULO DEV 2: Algoritmo de Roteamento, Tabela, Temporização e Dados
+    # ALGORITMO DE ROTEAMENTO, TABELA, TEMPORIZAÇÃO E DADOS
     # =========================================================================
 
     def executar_comando_N(self, nome: str):
