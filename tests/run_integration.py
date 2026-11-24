@@ -314,16 +314,65 @@ def main():
             assert count_line(aux.log()[failure_start:], "FALTOU UM ACK") == 1
 
             duplicate_start = len(aux.log())
-            data = {"type": "data", "src": "ORIG", "dst": "P",
+            data = {"type": "data", "src": "Q", "dst": "P",
                     "msg": "duplicate payload", "seq": 91}
             peer.sendto(json.dumps(data).encode(), ("127.0.0.1", aux.port))
             ack1 = json.loads(peer.recvfrom(4096)[0])
             peer.sendto(json.dumps(data).encode(), ("127.0.0.1", aux.port))
             ack2 = json.loads(peer.recvfrom(4096)[0])
             assert ack1["seq"] == ack2["seq"] == 91
-            wait_until(lambda: "DD ORIG duplicate payload" in aux.log()[duplicate_start:])
-            assert count_line(aux.log()[duplicate_start:], "DD ORIG duplicate payload") == 1
-            return "ACK ok; retry seq estável; 3 tentativas; duplicata ACKada e descartada"
+            wait_until(lambda: "DD Q duplicate payload" in aux.log()[duplicate_start:])
+            assert count_line(aux.log()[duplicate_start:], "DD Q duplicate payload") == 1
+
+            unauthorized_start = len(aux.log())
+            rogue = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            rogue.settimeout(0.25)
+            try:
+                rogue_data = {
+                    "type": "data", "src": "ROGUE", "dst": "Q",
+                    "msg": "unauthorized", "seq": 92,
+                }
+                rogue.sendto(json.dumps(rogue_data).encode(),
+                             ("127.0.0.1", aux.port))
+                try:
+                    rogue.recvfrom(4096)
+                    raise AssertionError("unregistered data sender received an ACK")
+                except socket.timeout:
+                    pass
+
+                spoofed_update = {
+                    "type": "update", "src": "Q", "seq": 93,
+                    "routes": {"UNAUTHORIZED_DEST": 1},
+                }
+                rogue.sendto(json.dumps(spoofed_update).encode(),
+                             ("127.0.0.1", aux.port))
+                try:
+                    rogue.recvfrom(4096)
+                    raise AssertionError("spoofed update received an ACK")
+                except socket.timeout:
+                    pass
+            finally:
+                rogue.close()
+
+            time.sleep(0.1)
+            new_output = aux.log()[unauthorized_start:]
+            assert "EE Q unauthorized" not in new_output
+            assert "DD ROGUE unauthorized" not in new_output
+            assert "DD Q unauthorized" not in new_output
+            assert "UNAUTHORIZED_DEST" not in new_output
+            routes, _ = query_table(aux)
+            assert "UNAUTHORIZED_DEST" not in routes
+            try:
+                peer.settimeout(0.2)
+                forwarded = peer.recvfrom(4096)
+                raise AssertionError(f"unregistered data was forwarded: {forwarded}")
+            except socket.timeout:
+                pass
+            finally:
+                peer.settimeout(3)
+
+            return ("ACK/retry/timeout/duplicate pass; unknown data and spoofed "
+                    "update receive no ACK or processing")
 
         check("Stop-and-Wait", "ACK/retry/duplicata/timeout", stop_and_wait)
 

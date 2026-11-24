@@ -96,6 +96,14 @@ class Roteador:
             self.seq_envio += 1
             return atual
 
+    def _eh_vizinho(self, nome: str, addr: tuple) -> bool:
+        with self.state_lock:
+            return isinstance(nome, str) and self.vizinhos.get(nome) == addr
+
+    def _eh_endereco_de_vizinho(self, addr: tuple) -> bool:
+        with self.state_lock:
+            return addr in self.vizinhos.values()
+
     def _enviar_ack(self, seq: int, addr: tuple):
         """Envia confirmação de entrega (ACK) para o endereço remetente."""
         with self.state_lock:
@@ -175,6 +183,13 @@ class Roteador:
                                 # ACK antigo/duplicado de outra mensagem: ignora e continua esperando
                                 continue
                             elif tipo in ("update", "data"):
+                                eh_vizinho = (
+                                    self._eh_vizinho(obj.get("src"), addr_rec)
+                                    if tipo == "update"
+                                    else self._eh_endereco_de_vizinho(addr_rec)
+                                )
+                                if not eh_vizinho:
+                                    continue
                                 # Uma mensagem de outro roteador chegou enquanto esperávamos o ACK.
                                 # Respondemos o ACK imediatamente para evitar deadlock quando dois
                                 # roteadores anunciam simultaneamente, e guardamos a mensagem na fila
@@ -231,6 +246,15 @@ class Roteador:
                 return
 
             src = msg.get("src")
+            eh_vizinho = (
+                self._eh_vizinho(src, addr)
+                if tipo == "update"
+                else self._eh_endereco_de_vizinho(addr)
+                if tipo == "data"
+                else True
+            )
+            if not eh_vizinho:
+                return
             seq = msg.get("seq")
 
             # Envia confirmação (ACK) para mensagens entre roteadores (update ou data)
@@ -247,10 +271,6 @@ class Roteador:
                     sequencias_recebidas.add(seq)
 
             if tipo == "update":
-                with self.state_lock:
-                    eh_vizinho = src in self.vizinhos
-                if not eh_vizinho:
-                    return
                 rotas = msg.get("routes")
                 if isinstance(rotas, dict):
                     self.processar_vetor_distancias(src, rotas)

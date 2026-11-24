@@ -36,7 +36,9 @@ OpenBSD netcat.
    `E` na origem, `EE` no intermediário e `DD` no destino.
 7. Remoção de enlace, invalidação e funcionamento de rota alternativa no anel.
 8. Stop-and-Wait: ACK, retransmissão com o mesmo `seq`, descarte de duplicata
-   e `FALTOU UM ACK` após três envios sem confirmação.
+   e `FALTOU UM ACK` após três envios sem confirmação; mensagens `data` de
+   endpoint não cadastrado e `update` com endereço divergente não recebem ACK nem
+   são processadas/encaminhadas.
 9. Controle TCP: comandos em múltiplas linhas, comando residual sem newline,
    reconexão, configuração por TCP e simultaneidade UDP/TCP.
 10. Formato de saída, sem mensagens de depuração extras nos cenários normais.
